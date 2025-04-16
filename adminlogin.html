@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | TapTap Chat</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+        }
+        .admin-login-box {
+            background: rgba(255,255,255,0.05);
+            padding: 50px 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(25px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            text-align: center;
+            width: 350px;
+            transition: 0.4s ease;
+            border: 1px solid rgba(0,255,255,0.3);
+        }
+        .admin-login-box:hover {
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.4);
+        }
+        .admin-login-box h2 {
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+            font-size: 24px;
+            color: #00f7ff;
+        }
+        .input-group {
+            position: relative;
+            margin: 20px 0;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.1);
+            color: #00f7ff;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s ease;
+        }
+        .input-group input:focus {
+            background: rgba(0,255,255,0.1);
+            box-shadow: 0 0 10px rgba(0,255,255,0.5);
+        }
+        .input-group label {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            color: rgba(0, 255, 255, 0.5);
+            transform: translateY(-50%);
+            pointer-events: none;
+            transition: 0.3s ease;
+        }
+        .input-group input:focus + label,
+        .input-group input:not(:placeholder-shown) + label {
+            top: 5px;
+            left: 15px;
+            font-size: 11px;
+            color: #00f7ff;
+            background: rgba(15,32,39,0.8);
+            padding: 0 5px;
+            border-radius: 5px;
+        }
+        .admin-login-box button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            color: white;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .admin-login-box button::before {
+            content: "";
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 300%;
+            background: linear-gradient(0deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: translateY(0);
+            animation: shine 2s infinite;
+            z-index: 0;
+        }
+        @keyframes shine {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .admin-login-box button:hover {
+            background: linear-gradient(45deg, #0072ff, #00c6ff);
+            box-shadow: 0 0 20px rgba(0,255,255,0.5);
+        }
+        .loading {
+            display: none;
+            margin-top: 20px;
+            border: 4px solid rgba(0, 255, 255, 0.3);
+            border-top: 4px solid #00f7ff;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            animation: spin 1s linear infinite;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Toast Notification Styling */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0,255,255,0.1);
+            color: #00f7ff;
+            padding: 15px 20px;
+            border: 1px solid rgba(0,255,255,0.4);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0,255,255,0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+            z-index: 1000;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.success {
+            border-color: rgba(0,255,0,0.4);
+            color: #0f0;
+        }
+        .toast.error {
+            border-color: rgba(255,0,0,0.4);
+            color: #f55;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-login-box">
+    <h2>Admin Login</h2>
+    <div class="input-group">
+        <input type="email" id="adminEmail" placeholder=" " required>
+        <label for="adminEmail">Admin Email</label>
+    </div>
+    <div class="input-group">
+        <input type="password" id="adminPassword" placeholder=" " required>
+        <label for="adminPassword">Password</label>
+    </div>
+    <button onclick="adminLogin()">LOGIN</button>
+    <div class="loading" id="loadingSpinner"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+<footer style="
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 13px;
+    color: rgba(0,255,255,0.6);
+    font-family: 'Orbitron', sans-serif;">
+    Developed by <a href="https://www.linkedin.com/in/john-munga" target="_blank" style="
+        color: #00f7ff;
+        text-decoration: none;
+        border-bottom: 1px dotted rgba(0,255,255,0.4);
+        padding-bottom: 2px;
+        transition: all 0.3s ease;
+    ">John Munga</a>
+</footer>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyB2mQNeygEwdWFCnHJnw9wlqHWKmXlfe38",
+        authDomain: "taptap-377d9.firebaseapp.com",
+        databaseURL: "https://taptap-377d9-default-rtdb.firebaseio.com",
+        projectId: "taptap-377d9",
+        storageBucket: "taptap-377d9.appspot.com",
+        messagingSenderId: "146364410143",
+        appId: "1:146364410143:web:3ce902bdcaeb954091682a",
+        measurementId: "G-LRJ2TK7CDH"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    function adminLogin() {
+        const email = document.getElementById('adminEmail').value.trim();
+        const password = document.getElementById('adminPassword').value.trim();
+        const loader = document.getElementById('loadingSpinner');
+        loader.style.display = "block";
+
+        firebase.auth().signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                if (user.uid === "nQwZRpxDPxXtl4XTR6wp1PLebLg2") {
+                    showToast("Login successful. Welcome Admin!", "success");
+                    setTimeout(() => window.location.href = "adminchatlist.html", 1000);
+                } else {
+                    firebase.auth().signOut();
+                    showToast("Access Denied: Not an authorized admin.", "error");
+                }
+            })
+            .catch((error) => {
+                showToast("Login Failed: " + error.message, "error");
+            })
+            .finally(() => {
+                loader.style.display = "none";
+            });
+    }
+
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast show ' + type;
+        setTimeout(() => toast.className = 'toast', 4000);
+    }
+</script>
+
+</body>
+</html>

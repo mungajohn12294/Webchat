@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Account | Taptap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB2mQNeygEwdWFCnHJnw9wlqHWKmXlfe38",
+      authDomain: "taptap-377d9.firebaseapp.com",
+      databaseURL: "https://taptap-377d9-default-rtdb.firebaseio.com",
+      projectId: "taptap-377d9",
+      storageBucket: "taptap-377d9.appspot.com",
+      messagingSenderId: "146364410143",
+      appId: "1:146364410143:web:3ce902bdcaeb954091682a"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+    }
+
+    .glass-container {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 40px;
+      width: 350px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(0,0,0,0.5);
+      animation: fadeIn 1.5s ease;
+      transition: all 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #ffffff;
+      margin-bottom: 25px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 12px 0;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      font-size: 14px;
+      outline: none;
+      transition: 0.3s ease;
+      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0);
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    input:focus {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 10px rgba(255,255,255,0.4);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(45deg, #00b4db, #0083b0);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    }
+
+    .link {
+      color: #a8dadc;
+      text-decoration: none;
+      display: block;
+      margin-top: 18px;
+      font-size: 13px;
+      transition: 0.3s ease;
+    }
+
+    .link:hover {
+      text-decoration: underline;
+      color: #ffffff;
+    }
+
+    .toaster {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.5s ease;
+      z-index: 99;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    .toaster.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .loader {
+      display: none;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-top: 5px solid white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      margin: 20px auto;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      color: #fff;
+      font-size: 14px;
+      opacity: 0.7;
+      letter-spacing: 0.4px;
+    }
+
+    footer a {
+      color: #a8dadc;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="glass-container">
+  <h2>Create Your Account</h2>
+  <input type="text" id="name" placeholder="Username">
+  <input type="email" id="email" placeholder="Email Address">
+  <input type="text" id="phone" placeholder="Phone Number">
+  <input type="password" id="password" placeholder="Password">
+  <div class="loader" id="loader"></div>
+  <button onclick="createAccount()">Sign Up</button>
+  <a class="link" href="login.html">Already have an account? Log In</a>
+</div>
+
+<div id="toast" class="toaster"></div>
+
+<footer>
+  <p>Developed by <a href="https://www.linkedin.com/in/john-munga" target="_blank">John Munga</a></p>
+</footer>
+
+<script>
+  function showToast(message, success = true) {
+    const toast = document.getElementById('toast');
+    toast.style.background = success ? "rgba(0,150,136,0.9)" : "rgba(220,20,60,0.9)";
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => { toast.classList.remove("show"); }, 3000);
+  }
+
+  function createAccount() {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const loader = document.getElementById('loader');
+
+    if (!name || !email || !phone || !password) {
+      showToast("All fields are required!", false);
+      return;
+    }
+
+    loader.style.display = "block";
+
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+      .then(userCredential => {
+        const user = userCredential.user;
+        return firebase.database().ref('users/' + user.uid).set({
+          name: name,
+          email: email,
+          phone: phone
+        });
+      })
+      .then(() => {
+        loader.style.display = "none";
+        showToast("Account created! Redirecting...");
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 2000);
+      })
+      .catch(error => {
+        loader.style.display = "none";
+        showToast(error.message, false);
+      });
+  }
+</script>
+
+</body>
+</html>

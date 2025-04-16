@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Private Chat</title>
+  <style>
+    :root {
+      --primary: #00ffc6;
+      --bg: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      --glass: rgba(255, 255, 255, 0.05);
+      --blur: blur(14px);
+      --text: #eee;
+      --bubble-admin: rgba(0, 255, 198, 0.15);
+      --bubble-user: rgba(255, 255, 255, 0.05);
+      --shadow-admin: rgba(0, 255, 198, 0.3);
+      --shadow-user: rgba(255, 255, 255, 0.08);
+    }
+    .light {
+      --primary: #00a385;
+      --bg: linear-gradient(135deg, #e0f7fa, #b2ebf2, #80deea);
+      --glass: rgba(0, 0, 0, 0.05);
+      --blur: blur(6px);
+      --text: #222;
+      --bubble-admin: rgba(0, 163, 133, 0.15);
+      --bubble-user: rgba(0, 0, 0, 0.05);
+      --shadow-admin: rgba(0, 163, 133, 0.3);
+      --shadow-user: rgba(0, 0, 0, 0.08);
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: var(--bg);
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      color: var(--text);
+      transition: all 0.4s ease;
+    }
+    header {
+      padding: 20px;
+      text-align: center;
+      font-size: 22px;
+      color: var(--primary);
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      letter-spacing: 1.5px;
+      box-shadow: 0 0 10px var(--shadow-admin);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .toggle-theme {
+      background: var(--primary);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-right: 5px;
+    }
+    .chat-window {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+    }
+    .message {
+      padding: 14px 18px;
+      border-radius: 20px;
+      max-width: 70%;
+      word-wrap: break-word;
+      position: relative;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUp 0.4s forwards;
+      line-height: 1.5;
+    }
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .admin {
+      background: var(--bubble-admin);
+      border: 1px solid var(--shadow-admin);
+      align-self: flex-end;
+      box-shadow: 0 0 12px var(--shadow-admin);
+    }
+    .user {
+      background: var(--bubble-user);
+      border: 1px solid var(--shadow-user);
+      align-self: flex-start;
+      box-shadow: 0 0 12px var(--shadow-user);
+    }
+    .timestamp {
+      font-size: 11px;
+      opacity: 0.5;
+      margin-top: 4px;
+    }
+    .input-area {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .input-area input {
+      flex: 1;
+      padding: 14px 20px;
+      border-radius: 30px;
+      border: none;
+      outline: none;
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text);
+      transition: 0.3s;
+    }
+    .input-area input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .input-area input:focus {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 8px var(--shadow-admin);
+    }
+    .input-area button {
+      background: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: 30px;
+      padding: 14px 20px;
+      margin-left: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+      box-shadow: 0 0 10px var(--shadow-admin);
+    }
+    .input-area button:hover {
+      background: #00cc99;
+      box-shadow: 0 0 20px var(--shadow-admin);
+    }
+    .voice-button {
+      background: var(--primary);
+      border: none;
+      padding: 12px;
+      border-radius: 50%;
+      margin-left: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--shadow-admin);
+      transition: transform 0.2s ease;
+    }
+    .voice-button:hover {
+      transform: scale(1.1);
+    }
+    @media (max-width: 600px) {
+      .message { max-width: 90%; font-size: 14px; }
+      header { font-size: 18px; padding: 15px; }
+      .input-area input { font-size: 14px; padding: 12px 16px; }
+      .input-area button { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  Admin — Private Chat
+  <button class="toggle-theme" onclick="toggleTheme()">Light/Dark</button>
+</header>
+
+<div class="chat-window" id="chatWindow"></div>
+
+<div class="input-area">
+  <input type="text" id="messageInput" placeholder="Type your message..." />
+  <button onclick="sendMessage()">Send</button>
+  <button class="voice-button" onclick="startVoice()">🎤</button>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB2mQNeygEwdWFCnHJnw9wlqHWKmXlfe38",
+    authDomain: "taptap-377d9.firebaseapp.com",
+    databaseURL: "https://taptap-377d9-default-rtdb.firebaseio.com",
+    projectId: "taptap-377d9",
+    storageBucket: "taptap-377d9.appspot.com",
+    messagingSenderId: "146364410143",
+    appId: "1:146364410143:web:3ce902bdcaeb954091682a",
+    measurementId: "G-LRJ2TK7CDH"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  const chatWindow = document.getElementById('chatWindow');
+  const messageInput = document.getElementById('messageInput');
+  const urlParams = new URLSearchParams(window.location.search);
+  const userId = urlParams.get('user');
+
+  if (!userId) {
+    alert("No user selected! Returning to chat list.");
+    window.location.href = 'adminchatlist.html';
+  }
+
+  const chatRef = firebase.database().ref(`chats/${userId}`);
+
+  chatRef.on('child_added', (snapshot) => {
+    const msg = snapshot.val();
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message ' + (msg.sender === 'admin' ? 'admin' : 'user');
+    messageDiv.innerHTML = `
+      ${msg.text}
+      <div class="timestamp">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+    `;
+    chatWindow.appendChild(messageDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  });
+
+  function sendMessage() {
+    const text = messageInput.value.trim();
+    if (text !== '') {
+      chatRef.push({
+        sender: 'admin',
+        text: text,
+        timestamp: new Date().toISOString()
+      });
+      messageInput.value = '';
+    }
+  }
+
+  // Voice Recognition
+  function startVoice() {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Voice recognition not supported.');
+      return;
+    }
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      messageInput.value = transcript;
+    };
+    recognition.start();
+  }
+
+  // Theme Toggle
+  function toggleTheme() {
+    document.body.classList.toggle('light');
+  }
+</script>
+
+</body>
+</html>

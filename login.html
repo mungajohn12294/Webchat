@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | TapTap Chat</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .login-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            width: 350px;
+            text-align: center;
+            color: #fff;
+        }
+        .login-box h2 {
+            margin-bottom: 30px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .login-box input {
+            width: 90%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            outline: none;
+            transition: 0.3s ease;
+        }
+        .login-box input:focus {
+            background: rgba(255,255,255,0.3);
+        }
+        .login-box button {
+            width: 95%;
+            padding: 15px;
+            border: none;
+            border-radius: 30px;
+            background: #00c6ff;
+            color: white;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s ease;
+        }
+        .login-box button:hover {
+            background: #0072ff;
+        }
+        .login-box p {
+            margin-top: 20px;
+        }
+        .login-box a {
+            color: #00c6ff;
+            text-decoration: none;
+        }
+        .hidden-admin-icon {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: url('https://img.icons8.com/ios-filled/50/ffffff/lock-2.png') no-repeat center;
+            background-size: 60%;
+            opacity: 0.2;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+        .hidden-admin-icon:hover {
+            opacity: 1;
+        }
+        /* Toaster Notification Styles */
+        #toaster {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        #toaster.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #toaster.success {
+            background: #28a745;
+        }
+        #toaster.error {
+            background: #dc3545;
+        }
+        /* Loader Spinner Styles */
+        #loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            margin: -30px 0 0 -30px;
+            border: 6px solid rgba(255,255,255,0.3);
+            border-top: 6px solid #00c6ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+            z-index: 10000;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Footer Styles */
+        footer {
+            margin-top: auto;
+            padding: 15px 0;
+            width: 100%;
+            text-align: center;
+            background: rgba(0,0,0,0.1);
+            color: #ddd;
+            font-size: 14px;
+        }
+        footer a {
+            color: #00c6ff;
+            text-decoration: none;
+            margin-left: 5px;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <h2>User Login</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p>Don't have an account? <a href="createacc.html">Create Account</a></p>
+</div>
+
+<!-- Hidden Admin Redirect Icon -->
+<div class="hidden-admin-icon" onclick="location.href='adminlogin.html'"></div>
+
+<!-- Toaster Notification -->
+<div id="toaster"></div>
+
+<!-- Loader Spinner -->
+<div id="loader"></div>
+
+<!-- Footer Section -->
+<footer>
+    Developed by John Munga | 
+    <a href="https://www.linkedin.com/in/john-munga" target="_blank">LinkedIn</a>
+</footer>
+
+<!-- Firebase JS SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyB2mQNeygEwdWFCnHJnw9wlqHWKmXlfe38",
+        authDomain: "taptap-377d9.firebaseapp.com",
+        databaseURL: "https://taptap-377d9-default-rtdb.firebaseio.com",
+        projectId: "taptap-377d9",
+        storageBucket: "taptap-377d9.appspot.com",
+        messagingSenderId: "146364410143",
+        appId: "1:146364410143:web:3ce902bdcaeb954091682a",
+        measurementId: "G-LRJ2TK7CDH"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    function showToast(message, type = 'success') {
+        const toaster = document.getElementById('toaster');
+        toaster.textContent = message;
+        toaster.className = `show ${type}`;
+        setTimeout(() => {
+            toaster.className = toaster.className.replace(`show ${type}`, '');
+        }, 3000);
+    }
+
+    function showLoader(state) {
+        document.getElementById('loader').style.display = state ? 'block' : 'none';
+    }
+
+    function updateUserStatus(uid, status) {
+        const userStatusDatabaseRef = firebase.database().ref('/users/' + uid + '/status');
+
+        if (status === 'online') {
+            userStatusDatabaseRef.set({
+                state: 'online',
+                last_changed: new Date().toISOString()
+            });
+
+            firebase.database().ref('.info/connected').on('value', function(snapshot) {
+                if (snapshot.val() === false) return;
+
+                userStatusDatabaseRef.onDisconnect().set({
+                    state: 'offline',
+                    last_changed: new Date().toISOString()
+                }).then(function() {
+                    userStatusDatabaseRef.set({
+                        state: 'online',
+                        last_changed: new Date().toISOString()
+                    });
+                });
+            });
+        } else {
+            userStatusDatabaseRef.set({
+                state: 'offline',
+                last_changed: new Date().toISOString()
+            });
+        }
+    }
+
+    function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (!email || !password) {
+            showToast("Please enter both email and password.", 'error');
+            return;
+        }
+
+        showLoader(true);
+
+        firebase.auth().signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                showLoader(false);
+                showToast("Login Successful!", 'success');
+
+                const user = userCredential.user;
+
+                // Set user status to online
+                updateUserStatus(user.uid, 'online');
+
+                if (user.uid === "nQwZRpxDPxXtl4XTR6wp1PLebLg2") {
+                    window.location.href = "adminchatlist.html";
+                } else {
+                    window.location.href = "chatroom.html";
+                }
+            })
+            .catch((error) => {
+                showLoader(false);
+                showToast("Login Failed: " + error.message, 'error');
+            });
+    }
+</script>
+
+</body>
+</html>

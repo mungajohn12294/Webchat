@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Chat List | TapTap</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, #1a1a2e, #16213e, #0f3460);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .chat-list-box {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 20px;
+      width: 90%;
+      max-width: 500px;
+      backdrop-filter: blur(25px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .chat-list-box h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .user-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.15);
+      padding: 15px 20px;
+      border-radius: 15px;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .user-item:hover {
+      background: rgba(255,255,255,0.25);
+    }
+    /* --- New Additions for Online Status & Actions --- */
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .status-badge {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 3px 8px;
+      border-radius: 50px;
+      font-size: 11px;
+      background: rgba(0,0,0,0.3);
+    }
+    .online {
+      background: rgba(0, 255, 0, 0.4);
+      color: #0f0;
+    }
+    .offline {
+      background: rgba(255, 0, 0, 0.4);
+      color: #f66;
+    }
+    .user-actions button {
+      margin-left: 5px;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 12px;
+    }
+    .user-actions button:hover {
+      opacity: 0.8;
+    }
+    .block { background: crimson; color: white; }
+    .delete { background: orangered; color: white; }
+    .message { background: #04c4d9; color: white; }
+  </style>
+</head>
+<body>
+
+<div class="chat-list-box">
+  <h2>Admin — User Chat List</h2>
+  <div id="userList"></div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyB2mQNeygEwdWFCnHJnw9wlqHWKmXlfe38",
+    authDomain: "taptap-377d9.firebaseapp.com",
+    databaseURL: "https://taptap-377d9-default-rtdb.firebaseio.com",
+    projectId: "taptap-377d9",
+    storageBucket: "taptap-377d9.appspot.com",
+    messagingSenderId: "146364410143",
+    appId: "1:146364410143:web:3ce902bdcaeb954091682a",
+    measurementId: "G-LRJ2TK7CDH"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  const userList = document.getElementById('userList');
+
+  // Fetch Users From Firebase Database
+  firebase.database().ref('users').once('value', (snapshot) => {
+    if (!snapshot.exists()) {
+      userList.innerHTML = "<p style='text-align:center; opacity:0.7;'>No users found.</p>";
+      return;
+    }
+
+    snapshot.forEach(userSnap => {
+      const userData = userSnap.val();
+      const userId = userSnap.key;
+      const username = userData.username || 'Unnamed';
+      const email = userData.email || 'No email';
+      const isOnline = userData.online || false;
+      const lastSeen = userData.lastSeen ? new Date(userData.lastSeen).toLocaleString() : 'Unknown';
+
+      // Create user item container
+      const userItem = document.createElement('div');
+      userItem.className = 'user-item';
+
+      userItem.innerHTML = `
+        <div class="user-info">
+          <strong>${username}</strong>
+          <small>${email}</small>
+          <span class="status-badge ${isOnline ? 'online' : 'offline'}">
+            ${isOnline ? 'Online' : 'Last seen: ' + lastSeen}
+          </span>
+        </div>
+        <div class="user-actions">
+          <button class="message" onclick="chatWithUser('${userId}')">Message</button>
+          <button class="block" onclick="blockUser('${userId}')">Block</button>
+          <button class="delete" onclick="deleteUser('${userId}')">Delete</button>
+        </div>
+      `;
+      userList.appendChild(userItem);
+    });
+  });
+
+  function chatWithUser(userId) {
+    window.location.href = `adminchat.html?user=${userId}`;
+  }
+
+  function blockUser(userId) {
+    if(confirm('Are you sure you want to block this user?')) {
+      firebase.database().ref(`users/${userId}`).update({ blocked: true }).then(() => {
+        alert('User blocked successfully.');
+        location.reload();
+      });
+    }
+  }
+
+  function deleteUser(userId) {
+    if(confirm('Are you sure you want to delete this user? This action is irreversible.')) {
+      firebase.database().ref(`users/${userId}`).remove().then(() => {
+        alert('User deleted.');
+        location.reload();
+      });
+    }
+  }
+</script>
+
+</body>
+</html>
