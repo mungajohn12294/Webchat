@@ -160,7 +160,7 @@
       .then(() => {
         loader.style.display = 'none';
         alert("Account created successfully!");
-        window.location.href = "home.html";
+        window.location.href = "chatroom.html";
       })
       .catch(error => {
         loader.style.display = 'none';
@@ -182,7 +182,7 @@
       })
       .then(() => {
         alert("Signed in with Google!");
-        window.location.href = "home.html";
+        window.location.href = "chatroom.html";
       })
       .catch(err => alert(err.message));
   }
