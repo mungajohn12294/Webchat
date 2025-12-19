@@ -222,8 +222,8 @@
 
         firebase.auth().signInWithEmailAndPassword(email, password)
             .then((userCredential) => {
-                const user = userCredential.user;
-                if (user.uid === "nQwZRpxDPxXtl4XTR6wp1PLebLg2") {
+                const user = .user;
+                if (user.uid === "2579aded277b42235db64c89acffcac565d3baa2") {
                     showToast("Login successful. Welcome Admin!", "success");
                     setTimeout(() => window.location.href = "adminchatlist.html", 1000);
                 } else {
